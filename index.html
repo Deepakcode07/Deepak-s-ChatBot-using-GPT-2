@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepak's ChatBot</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Custom styles for a royal look */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(to bottom, #1c1c3c, #4a4a91);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        .wrapper {
+            display: flex;
+            height: 100%;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 250px; /* Adjusted for sidebar */
+            height: 100%;
+        }
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #f9d342;
+            text-shadow: 2px 2px 5px #000;
+        }
+        #chatbox {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 2px solid #f9d342;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .user {
+            text-align: right;
+        }
+        .bot {
+            text-align: left;
+        }
+        .user p, .bot p {
+            display: inline-block;
+            max-width: 80%;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+        }
+        .user p {
+            background-color: #f9d342;
+            color: #1c1c3c;
+        }
+        .bot p {
+            background-color: #333;
+            color: #fff;
+        }
+        #userInput {
+            margin-top: 10px;
+            border: 2px solid #f9d342;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #333;
+            font-size: 1rem;
+            flex-grow: 1;
+        }
+        #sendBtn {
+            margin-top: 10px;
+            background-color: #f9d342;
+            color: #1c1c3c;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        #sendBtn:hover {
+            background-color: #d27b24;
+        }
+        #sendBtn i {
+            margin-left: 5px;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            color: #f9d342;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #f9d342;
+        }
+        .sidebar .past-searches {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar .past-searches li {
+            padding: 10px;
+            background-color: #333;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .sidebar .past-searches li:hover {
+            background-color: #444;
+        }
+
+        /* Lion logo at the top-left corner */
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+        .logo h2 {
+            margin: 0;
+        }
+
+        /* For mobile screens */
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            #chatbox {
+                padding: 10px;
+            }
+            .user p, .bot p {
+                max-width: 100%;
+                padding: 8px;
+            }
+            .container {
+                margin-left: 0;
+                padding: 10px;
+            }
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                padding: 10px;
+                box-shadow: none;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Mic, Camera, and Media upload */
+        .input-icons {
+            display: flex;
+            align-items: center;
+        }
+        .input-icons i {
+            margin-right: 10px;
+            cursor: pointer;
+            color: #f9d342;
+        }
+        #mediaUpload, #cameraInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../static/lion.jpg" alt="Lion Logo">
+                <h2>Past Searches</h2>
+            </div>
+            <ul class="past-searches" id="pastSearches">
+                <!-- Past searches will be appended here -->
+            </ul>
+        </div>
+
+        <div class="container">
+            <h1>Deepak's ChatGPT</h1>
+            <div id="chatbox"></div>
+            <div class="input-icons">
+                <i class="fas fa-paperclip" id="uploadIcon"></i>
+                <input type="file" id="mediaUpload">
+                <i class="fas fa-camera" id="cameraIcon"></i>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment">
+                <i class="fas fa-microphone" id="micBtn"></i>
+                <input type="text" id="userInput" class="form-control" placeholder="Type a message...">
+                <button id="sendBtn" class="btn mt-2"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to add past searches to the sidebar
+            function addPastSearch(search) {
+                $("#pastSearches").append('<li>' + search + '</li>');
+            }
+
+            $("#sendBtn").on("click", function () {
+                var userInput = $("#userInput").val();
+                if (userInput.trim() === "") {
+                    return;
+                }
+
+                addPastSearch(userInput);
+
+                $.ajax({
+                    url: "/chat",
+                    method: "POST",
+                    data: { input: userInput },
+                    success: function (response) {
+                        var chatbox = $("#chatbox");
+                        chatbox.append('<div class="user"><p>' + userInput + "</p></div>");
+                        chatbox.append('<div class="bot"><p>' + response.response + "</p></div>");
+                        $("#userInput").val("");
+                        chatbox.scrollTop(chatbox[0].scrollHeight);
+                    },
+                });
+            });
+
+            // Allow pressing enter to send the message
+            $("#userInput").on("keypress", function (e) {
+                if (e.which == 13) {
+                    $("#sendBtn").click();
+                }
+            });
+
+            // Allow clicking on past searches to re-use the search
+            $(document).on("click", ".past-searches li", function () {
+                var search = $(this).text();
+                $("#userInput").val(search);
+                $("#sendBtn").click();
+            });
+
+            // Mic button for speech recognition
+            $("#micBtn").on("click", function () {
+                var recognition = new webkitSpeechRecognition();
+                recognition.lang = "en-US";
+                recognition.onresult = function(event) {
+                    var speechResult = event.results[0][0].transcript;
+                    $("#userInput").val(speechResult);
+                    $("#sendBtn").click();
+                };
+                recognition.start();
+            });
+
+            // Media upload button
+            $("#uploadIcon").on("click", function () {
+                $("#mediaUpload").click();
+            });
+
+            $("#mediaUpload").on("change", function() {
+                var file = this.files[0];
+                if (file) {
+                    addPastSearch(file.name);
+
+                    // Handle the uploaded file here
+                }
+            });
+
+            // Camera icon button
+            $("#cameraIcon").on("click", function () {
+                $("#cameraInput").click();
+            });
+
+            $("#cameraInput").on("change", function() {
+                var file = this.files[0];
+                if (file) {
+                    addPastSearch(file.name);
+
+                    // Handle the image taken by the camera
+                }
+            });
+        });
+    </script>
+</body>
+</html>
